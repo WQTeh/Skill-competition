@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soldering Certification — Practice / Latihan</title>
+<style>
+  :root{
+    --ink:#14212b;--ink-soft:#4a5b66;--paper:#eceae3;--panel:#f7f6f2;
+    --line:#c9c4b8;--solder:#8a9199;--flux:#c47a3d;
+    --good:#2f6b4f;--bad:#a8412f;--warn:#8a6d2f;
+    --shadow:0 1px 0 #fff,0 2px 14px rgba(20,33,43,.08);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;line-height:1.5;padding:0 18px 80px}
+  .wrap{max-width:720px;margin:0 auto}
+  header{padding:40px 0 24px;border-bottom:2px solid var(--ink)}
+  .eyebrow{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--flux);margin:0 0 10px}
+  h1{font-size:clamp(1.9rem,6vw,2.9rem);line-height:1.02;margin:0;font-weight:600;letter-spacing:-.01em}
+  h1 .sub{display:block;color:var(--solder);font-size:.44em;font-weight:600;letter-spacing:0;margin-top:10px}
+  .lede{color:var(--ink-soft);margin:16px 0 0;max-width:56ch}
+  .lede .ms{display:block;margin-top:6px;font-style:italic;color:var(--solder)}
+  .setup{margin:26px 0 0;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field span{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft)}
+  select,button{font-family:inherit;font-size:1rem;color:var(--ink);background:var(--panel);border:1.5px solid var(--ink);border-radius:0;padding:11px 14px;cursor:pointer}
+  select{min-width:200px}
+  button.start{background:var(--ink);color:var(--paper);font-weight:600}
+  button.start:hover{background:#000}
+  button:focus-visible,select:focus-visible,.opt:focus-visible{outline:3px solid var(--flux);outline-offset:2px}
+  .bar{margin:30px 0 22px;display:flex;align-items:center;gap:14px}
+  .track{flex:1;height:6px;background:#d9d5c9;position:relative;overflow:hidden}
+  .fill{position:absolute;inset:0 100% 0 0;background:var(--solder);transition:right .35s ease}
+  .count{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.8rem;color:var(--ink-soft);white-space:nowrap}
+  .card{background:var(--panel);border:1.5px solid var(--line);box-shadow:var(--shadow);padding:26px 24px;margin-top:6px}
+  .qtag{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--solder);display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .flagchip{color:var(--warn);border:1px solid var(--warn);padding:2px 7px;font-size:.62rem;letter-spacing:.1em}
+  .qtext{font-size:1.18rem;line-height:1.4;margin:0 0 6px}
+  .qtext-ms{font-size:1rem;line-height:1.4;margin:0 0 22px;color:var(--ink-soft);font-style:italic}
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{text-align:left;width:100%;background:#fff;border:1.5px solid var(--line);padding:13px 16px;font-size:1rem;line-height:1.35;display:flex;gap:12px;align-items:baseline;transition:border-color .12s,background .12s}
+  .opt:hover:not(:disabled){border-color:var(--ink)}
+  .opt:disabled{cursor:default}
+  .opt .key{font-family:"IBM Plex Mono",ui-monospace,monospace;font-weight:600;color:var(--solder);flex:none;min-width:1.4em}
+  .opt .otxt .ms{display:block;font-style:italic;color:var(--ink-soft);font-size:.9em;margin-top:3px}
+  .opt.correct{border-color:var(--good);background:#eef4ef}.opt.correct .key{color:var(--good)}
+  .opt.wrong{border-color:var(--bad);background:#f6ece9}.opt.wrong .key{color:var(--bad)}
+  .fb{margin-top:20px;border-left:3px solid var(--solder);padding:2px 0 2px 16px;display:none}
+  .fb.show{display:block;animation:rise .3s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .verdict{font-weight:600;font-size:1.05rem;margin:0 0 6px}
+  .verdict.r{color:var(--good)}.verdict.w{color:var(--bad)}
+  .why{margin:0 0 8px;color:var(--ink);font-size:.97rem}
+  .why b{color:var(--ink)}
+  .why-ms{margin:0;color:var(--ink-soft);font-size:.92rem;font-style:italic}
+  .flagnote{margin:12px 0 0;padding:10px 14px;background:#f4efe1;border:1px solid var(--warn);font-size:.85rem;color:var(--warn)}
+  .flagnote .ms{display:block;font-style:italic;margin-top:4px}
+  .nav{margin-top:22px;display:flex;justify-content:flex-end}
+  button.next{background:var(--ink);color:var(--paper);font-weight:600;padding:11px 22px}
+  button.next:hover{background:#000}
+  .results{background:var(--panel);border:1.5px solid var(--ink);padding:34px 28px;text-align:center}
+  .score{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:clamp(3rem,14vw,5rem);font-weight:600;line-height:1;letter-spacing:-.02em}
+  .score .of{color:var(--solder);font-size:.4em}
+  .verdictline{font-size:1.15rem;margin:14px 0 4px;font-weight:600}
+  .verdictline .ms{display:block;font-size:.82em;font-style:italic;color:var(--solder);font-weight:400;margin-top:4px}
+  .results p{color:var(--ink-soft);max-width:52ch;margin:8px auto}
+  .results p .ms{display:block;font-style:italic;margin-top:4px}
+  .missed{text-align:left;margin:26px 0 0;border-top:1px solid var(--line);padding-top:20px}
+  .missed h3{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 14px}
+  .missrow{padding:10px 0;border-bottom:1px solid var(--line);font-size:.92rem}
+  .missrow .m-q{display:block;margin-bottom:4px}
+  .missrow .m-a{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.82rem}
+  .missrow .m-a .x{color:var(--bad)}.missrow .m-a .o{color:var(--good)}
+  .again{margin-top:26px}
+  .hidden{display:none}
+  footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:.78rem;color:var(--solder);line-height:1.6}
+  footer .ms{display:block;font-style:italic;margin-top:6px}
+  @media (max-width:560px){.card{padding:20px 16px}.setup{flex-direction:column;align-items:stretch}select{width:100%}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section id="home">
+    <header>
+      <p class="eyebrow">Skills Certification · Pre-exam practice / Latihan pra-peperiksaan</p>
+      <h1>Electronic Circuit Board<span class="sub">Soldering knowledge check — Level 2 &amp; Level 3 · Semakan pengetahuan pematerian</span></h1>
+      <p class="lede">Answer each statement, then read why. The goal isn't the score — it's finding what you don't yet know while there's still time to fix it.
+        <span class="ms">Jawab setiap pernyataan, kemudian baca sebabnya. Matlamatnya bukan markah — tetapi mengesan apa yang anda belum tahu semasa masih ada masa untuk memperbaikinya.</span></p>
+    </header>
+    <div class="setup">
+      <label class="field">
+        <span>Question set / Set soalan</span>
+        <select id="setPick">
+          <option value="l3">Level 3 — 50 questions / soalan</option>
+          <option value="l2">Level 2 — 40 questions / soalan</option>
+          <option value="both">Both levels — 90 questions / soalan</option>
+          <option value="quick">Quick 15 — mixed traps / soalan rumit</option>
+        </select>
+      </label>
+      <button class="start" id="startBtn">Start / Mula</button>
+    </div>
+    <footer>
+      Built from the Epson soldering, 5S/3-Tei, safety and quality-control textbooks. A few items are marked <b style="color:var(--warn)">verify with instructor</b> — on those, the official key may differ from the answer shown here.
+      <span class="ms">Dibina daripada buku teks pematerian, 5S/3-Tei, keselamatan dan kawalan kualiti Epson. Beberapa soalan ditanda <b style="color:var(--warn)">sahkan dengan jurulatih</b> — bagi soalan tersebut, kunci jawapan rasmi mungkin berbeza daripada jawapan di sini. TERJEMAHAN BM PERLU DISEMAK oleh jurulatih sebelum digunakan.</span>
+    </footer>
+  </section>
+
+  <section id="quiz" class="hidden">
+    <div class="bar">
+      <div class="track"><div class="fill" id="fill"></div></div>
+      <div class="count" id="count">1 / 50</div>
+    </div>
+    <div class="card">
+      <div class="qtag">
+        <span id="qtag">Level 3 · Q1</span>
+        <span class="flagchip hidden" id="flagchip">verify / sahkan</span>
+      </div>
+      <p class="qtext" id="qtext">—</p>
+      <p class="qtext-ms" id="qtextMs">—</p>
+      <div class="opts" id="opts"></div>
+      <div class="fb" id="fb">
+        <p class="verdict" id="verdict">—</p>
+        <p class="why" id="why">—</p>
+        <p class="why-ms" id="whyMs">—</p>
+        <div class="flagnote hidden" id="flagnote"></div>
+      </div>
+      <div class="nav hidden" id="nav">
+        <button class="next" id="nextBtn">Next →</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="done" class="hidden">
+    <div class="results">
+      <div class="score"><span id="scoreNum">0</span><span class="of">/<span id="scoreDen">50</span></span></div>
+      <p class="verdictline" id="scoreVerdict">—</p>
+      <p id="scoreNote">—</p>
+      <div class="missed hidden" id="missedBox">
+        <h3 id="missedTitle">Review these / Semak semula</h3>
+        <div id="missList"></div>
+      </div>
+      <button class="start again" id="againBtn">Practice again / Latih semula</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* type ox/mc; a = answer; each item carries EN + MS.
+   ox options are fixed. mc options: {en, ms}. */
+const L3=[
+ {t:"ox",a:"O",q:"Solder has the property of flowing from a lower temperature area to a higher temperature area.",qms:"Pateri mempunyai sifat mengalir dari kawasan suhu rendah ke kawasan suhu tinggi.",why:"Correct. Solder flows from cooler toward hotter — used when applying solder away from the heating point.",wms:"Betul. Pateri mengalir dari kawasan sejuk ke kawasan panas — digunakan semasa menyapu pateri jauh dari titik pemanasan."},
+ {t:"ox",a:"X",q:"Solder balls during reflow can be largely prevented by using a high temperature reflow furnace.",qms:"Solder ball semasa reflow boleh dielakkan dengan menggunakan relau reflow bersuhu tinggi.",why:"A hotter furnace makes spraying/solder balls <b>worse</b>. The fix is controlling the preheat profile.",wms:"Relau yang lebih panas menjadikan solder ball <b>lebih teruk</b>. Penyelesaiannya ialah mengawal profil pra-pemanasan (preheat)."},
+ {t:"ox",a:"X",q:"The common cause of loose and tempura is high heating temperature.",qms:"Punca biasa kecacatan loose dan tempura ialah suhu pemanasan yang tinggi.",why:"Loose and tempura come from <b>insufficient/too-low</b> heating and poor wetting — not high temperature.",wms:"Loose dan tempura berpunca daripada pemanasan yang <b>tidak cukup/terlalu rendah</b> dan wetting yang lemah — bukan suhu tinggi."},
+ {t:"ox",a:"O",q:"The base metal in lead-free solder is tin (Sn) for safety, resource availability, cost, etc.",qms:"Logam asas dalam pateri bebas plumbum (lead-free) ialah timah (Sn) atas sebab keselamatan, bekalan bahan, kos, dsb.",why:"Correct. Sn is the base metal for lead-free solder.",wms:"Betul. Sn ialah logam asas untuk pateri lead-free."},
+ {t:"ox",a:"X",q:"Appearance inspection can be broadly divided into visual inspection and destructive inspection.",qms:"Pemeriksaan rupa boleh dibahagikan kepada pemeriksaan visual dan pemeriksaan memusnah (destructive).",why:"It divides into visual and <b>tactile</b> inspection. Appearance inspection is non-destructive.",wms:"Ia terbahagi kepada pemeriksaan visual dan pemeriksaan <b>sentuhan (tactile)</b>. Pemeriksaan rupa tidak memusnahkan."},
+ {t:"ox",a:"O",q:'A resistor color-coded [brown, black, orange, gold] means "10kΩ ±5%."',qms:'Perintang berkod warna [perang, hitam, jingga, emas] bermaksud "10kΩ ±5%."',why:"Correct. Brown=1, black=0, orange=×1000 → 10kΩ; gold = ±5%.",wms:"Betul. Perang=1, hitam=0, jingga=×1000 → 10kΩ; emas = ±5%."},
+ {t:"ox",a:"O",q:"The most efficient order for installing parts is top to bottom and left to right, which reduces mistakes.",qms:"Susunan paling cekap untuk memasang komponen ialah dari atas ke bawah dan kiri ke kanan, yang mengurangkan kesilapan.",why:"Correct. A consistent installation order improves efficiency and reduces errors.",wms:"Betul. Susunan pemasangan yang konsisten meningkatkan kecekapan dan mengurangkan ralat."},
+ {t:"ox",a:"X",q:"With lead-free solder, the iron temperature is set higher, so preheating the lands and leads is not necessary.",qms:"Dengan pateri lead-free, suhu iron ditetapkan lebih tinggi, jadi pra-pemanasan land dan lead tidak diperlukan.",why:"Preheating and heating both parts simultaneously is still required.",wms:"Pra-pemanasan dan memanaskan kedua-dua bahagian serentak masih diperlukan."},
+ {t:"ox",a:"O",q:"Our group's standard is to install local exhaust ventilation when performing regular soldering.",qms:"Standard kumpulan kami ialah memasang pengudaraan ekzos setempat (local exhaust) semasa pematerian dilakukan secara tetap.",why:"Correct. Local exhaust is the standard where soldering is done regularly.",wms:"Betul. Local exhaust ialah standard di tempat pematerian dilakukan secara kerap."},
+ {t:"ox",a:"O",q:"When using an iron-tip thermometer, an error occurs if the solder on the tip and sensor are not fully melted before measurement.",qms:"Semasa menggunakan termometer hujung iron, ralat berlaku jika pateri pada hujung dan sensor tidak cair sepenuhnya sebelum pengukuran.",why:"Correct. The solder on the sensor must be molten for a valid reading.",wms:"Betul. Pateri pada sensor mesti cair untuk bacaan yang sah."},
+ {t:"ox",a:"O",q:"When working with solder or flux, harmful substances can be produced through thermal decomposition.",qms:"Semasa bekerja dengan pateri atau flux, bahan berbahaya boleh terhasil melalui penguraian haba (thermal decomposition).",why:"Correct. Thermal decomposition of flux/solder releases harmful fumes.",wms:"Betul. Penguraian haba flux/pateri membebaskan wasap berbahaya."},
+ {t:"ox",a:"X",q:"The lower the affinity of the iron tip with solder, the less the tip will wear down.",qms:"Semakin rendah pertautan (affinity) hujung iron dengan pateri, semakin kurang hujung itu haus.",why:"Low affinity means poor heat transfer — it doesn't reduce wear. Wear comes from tin diffusion.",wms:"Affinity rendah bermakna pemindahan haba yang lemah — ia tidak mengurangkan kehausan. Kehausan berpunca daripada resapan timah."},
+ {t:"ox",a:"X",q:'The "102" printed on a chip resistor means "10 kΩ."',qms:'"102" yang dicetak pada perintang chip bermaksud "10 kΩ."',why:"102 = 10 × 10² = 1,000Ω = <b>1 kΩ</b>, not 10 kΩ.",wms:"102 = 10 × 10² = 1,000Ω = <b>1 kΩ</b>, bukan 10 kΩ."},
+ {t:"ox",a:"X",flag:true,q:"The whisker phenomenon of chemical deterioration refers to single-crystal precipitation, particularly noticeable in silver plating.",qms:"Fenomena whisker dalam kemerosotan kimia merujuk kepada pemendakan hablur tunggal, terutamanya ketara pada penyaduran perak (silver plating).",why:"Whiskering is most conspicuous in <b>tin (Sn)</b> plating. Silver is linked to <b>migration</b>, not whiskers.",wms:"Whisker paling ketara pada penyaduran <b>timah (Sn)</b>. Perak dikaitkan dengan <b>migration</b>, bukan whisker.",flagnote:"If your key marks this O, it conflates whisker and migration — ask your instructor.",flagms:"Jika kunci anda menanda O, ia mengelirukan whisker dengan migration — tanya jurulatih."},
+ {t:"ox",a:"X",q:"For metal, plastic, and other waste from soldering, if the waste is small there is no need to separate it for disposal.",qms:"Bagi sisa logam, plastik dsb. daripada kerja pematerian, jika sisa itu kecil tidak perlu diasingkan untuk pelupusan.",why:"Waste containing lead must be separated and handled as industrial waste regardless of amount.",wms:"Sisa yang mengandungi plumbum mesti diasingkan dan dilupus sebagai sisa industri tanpa mengira jumlah."},
+ {t:"ox",a:"X",q:"Soldering bonds two pieces of metal using molten solder, much like gluing two pieces of paper.",qms:"Pematerian menyambung dua logam menggunakan pateri cair, sama seperti menggam dua helai kertas.",why:"Soldering forms an <b>alloy layer</b> at the interface — fundamentally different from gluing paper.",wms:"Pematerian membentuk <b>lapisan aloi</b> pada antara muka — berbeza sama sekali daripada menggam kertas."},
+ {t:"ox",a:"X",q:"To chemically remove dirt from a metal surface, use sandpaper or a metal file.",qms:"Untuk membuang kotoran secara kimia daripada permukaan logam, gunakan kertas pasir atau kikir logam.",why:"Sandpaper/file is a <b>mechanical</b> method. Chemical removal uses flux or solvents.",wms:"Kertas pasir/kikir ialah kaedah <b>mekanikal</b>. Pembuangan kimia menggunakan flux atau pelarut."},
+ {t:"ox",a:"X",q:"Lead-free solder has a high melting temperature, so overheating is unavoidable.",qms:"Pateri lead-free mempunyai suhu lebur tinggi, jadi terlebih panas (overheating) tidak dapat dielakkan.",why:"Higher melting point doesn't make overheating unavoidable — temperature control prevents it.",wms:"Takat lebur lebih tinggi tidak menjadikan overheating tidak dapat dielak — kawalan suhu mencegahnya."},
+ {t:"ox",a:"O",q:"Flux works to prevent oxidation of metal surfaces.",qms:"Flux berfungsi untuk mencegah pengoksidaan permukaan logam.",why:"Correct. Flux removes existing oxide and shields the surface during heating.",wms:"Betul. Flux membuang oksida sedia ada dan melindungi permukaan semasa pemanasan."},
+ {t:"ox",a:"O",q:"Diodes only allow current to flow in one direction and are primarily used in rectifier circuits.",qms:"Diod hanya membenarkan arus mengalir satu arah dan digunakan terutamanya dalam litar penerus (rectifier).",why:"Correct. One-way conduction; rectification is a primary use.",wms:"Betul. Pengaliran satu arah; penerusan ialah kegunaan utama."},
+ {t:"ox",a:"X",q:"Having a larger amount of solder available is better, as it makes work easier and results in better quality.",qms:"Menggunakan lebih banyak pateri adalah lebih baik, kerana ia memudahkan kerja dan menghasilkan kualiti lebih baik.",why:"More solder is not better. Strength doesn't increase; excess hides defects and causes bridges.",wms:"Pateri lebih banyak bukan lebih baik. Kekuatan tidak bertambah; lebihan menyembunyikan kecacatan dan menyebabkan bridge."},
+ {t:"ox",a:"X",q:"Components that degrade from soldering heat should be mounted closely to the board.",qms:"Komponen yang merosot akibat haba pematerian patut dipasang rapat dengan board.",why:"Heat-sensitive parts (ICs, transistors) are mounted <b>elevated</b> (3–7 mm), not close.",wms:"Komponen sensitif haba (IC, transistor) dipasang <b>terangkat</b> (3–7 mm), bukan rapat."},
+ {t:"ox",a:"O",q:"Rosin adhesion refers to a film of flux between the land and lead wire, causing an incomplete connection.",qms:"Rosin adhesion merujuk kepada lapisan flux antara land dan lead wire, menyebabkan sambungan tidak lengkap.",why:"Correct. This describes gummy solder — a flux film gives a poor electrical connection.",wms:"Betul. Ini menerangkan gummy solder — lapisan flux memberi sambungan elektrik yang lemah."},
+ {t:"ox",a:"X",q:"Electrolytic capacitor mounting is set by polarity markings, so the markings need not be readable after soldering.",qms:"Pemasangan kapasitor elektrolitik ditentukan oleh tanda kutub, jadi tanda itu tidak perlu boleh dibaca selepas pematerian.",why:"Markings must remain <b>readable</b> after mounting.",wms:"Tanda mesti kekal <b>boleh dibaca</b> selepas pemasangan."},
+ {t:"ox",a:"O",q:"Contact pressure, area, and angle matter for heat transfer; for a large item, increase the contact pressure.",qms:"Tekanan, luas dan sudut sentuhan penting untuk pemindahan haba; untuk item besar, tambah tekanan sentuhan.",why:"Correct. More heat needed → higher contact pressure over a short time.",wms:"Betul. Lebih haba diperlukan → tekanan sentuhan lebih tinggi dalam masa singkat."},
+ {t:"ox",a:"X",q:"Nippers are tools used for bending lead wires; care of the cutting edges prevents rust.",qms:"Nipper ialah alat untuk membengkokkan lead wire; menjaga mata pemotong mencegah karat.",why:"Nippers <b>cut</b> lead wires. Bending uses lead pinch/tweezers.",wms:"Nipper <b>memotong</b> lead wire. Membengkok menggunakan lead pinch/forsep."},
+ {t:"ox",a:"O",q:"The joining mechanism of Sn-Ag-Cu lead-free solder is basically the same as Sn-Pb solder.",qms:"Mekanisme penyambungan pateri lead-free Sn-Ag-Cu pada dasarnya sama seperti pateri Sn-Pb.",why:"Correct. Both form an intermetallic alloy layer at the interface.",wms:"Betul. Kedua-duanya membentuk lapisan aloi antara logam (intermetallic) pada antara muka."},
+ {t:"ox",a:"O",q:"Quality control is a systematic method for economically producing goods/services that meet the buyer's quality requirements.",qms:"Kawalan kualiti ialah kaedah sistematik untuk menghasilkan barangan/perkhidmatan secara ekonomik yang memenuhi keperluan kualiti pembeli.",why:"Correct — matches the textbook QC definition.",wms:"Betul — sepadan dengan takrif QC dalam buku teks."},
+ {t:"ox",a:"O",flag:true,q:"The lift-off phenomenon with lead-free solder often occurs on single-sided boards.",qms:"Fenomena lift-off dengan pateri lead-free sering berlaku pada board satu muka (single-sided).",why:"Per the companion lead-free item, lift-off occurs most on single-sided boards; the fix is a double-sided through-hole board.",wms:"Menurut soalan lead-free berkaitan, lift-off paling kerap pada board satu muka; penyelesaiannya ialah board through-hole dua muka.",flagnote:"The main text ties pad rising to heat & pressure without naming board type. Confirm with instructor.",flagms:"Teks utama mengaitkan pad rising dengan haba & tekanan tanpa menyebut jenis board. Sahkan dengan jurulatih."},
+ {t:"ox",a:"O",q:"Soldering can be summed up into three elements: cleaning, heating, and soldering.",qms:"Pematerian boleh dirumuskan kepada tiga elemen: pembersihan, pemanasan, dan pematerian.",why:"Correct. The three elements are cleaning, heating, soldering.",wms:"Betul. Tiga elemen ialah pembersihan, pemanasan, pematerian."},
+ {t:"ox",a:"X",q:"Reflow systems don't need regular maintenance if start-up inspections are thoroughly done.",qms:"Sistem reflow tidak perlu penyelenggaraan berkala jika pemeriksaan permulaan dibuat dengan teliti.",why:"Regular maintenance is still required. Start-up inspection alone doesn't prevent all breakdowns.",wms:"Penyelenggaraan berkala masih diperlukan. Pemeriksaan permulaan sahaja tidak mencegah semua kerosakan."},
+ {t:"ox",a:"X",q:"When soldering, get your face as close as possible to see the finished result clearly.",qms:"Semasa mematri, dekatkan muka sedekat mungkin untuk melihat hasil dengan jelas.",why:"Dangerous — splatter and fumes. Keep the face at least 20 cm away.",wms:"Bahaya — percikan dan wasap. Jarakkan muka sekurang-kurangnya 20 cm."},
+ {t:"ox",a:"X",q:"Lead-free solder has good wettability and provides excellent solder wicking into through-holes.",qms:"Pateri lead-free mempunyai wettability yang baik dan memberi wicking pateri yang sangat baik ke dalam through-hole.",why:"Lead-free has <b>inferior</b> wettability, so through-hole wicking is not excellent.",wms:"Lead-free mempunyai wettability yang <b>lebih lemah</b>, jadi wicking through-hole tidak cemerlang."},
+ {t:"ox",a:"X",q:"An advantage of printed circuit boards is that circuit changes and additions can be made easily.",qms:"Satu kelebihan PCB ialah perubahan dan penambahan litar boleh dibuat dengan mudah.",why:"That's a PCB <b>weakness</b> — only one circuit type is formed; changes are hard.",wms:"Itu <b>kelemahan</b> PCB — hanya satu jenis litar terbentuk; perubahan sukar."},
+ {t:"ox",a:"O",flag:true,q:"Lead-free soldering irons offer better control over tip temperature than conventional products.",qms:"Iron pematerian lead-free memberi kawalan suhu hujung yang lebih baik berbanding produk konvensional.",why:"Temperature-controlled irons are emphasized for lead-free work. Marked O.",wms:"Iron terkawal suhu ditekankan untuk kerja lead-free. Ditanda O.",flagnote:"The text praises temperature control but doesn't directly compare lead-free vs conventional irons.",flagms:"Teks memuji kawalan suhu tetapi tidak membandingkan iron lead-free vs konvensional secara langsung."},
+ {t:"ox",a:"O",q:"Solder wick is a flux-impregnated copper wire.",qms:"Solder wick ialah wayar tembaga yang diserap flux.",why:"Correct. Solder wick = braided copper with flux absorbed into it.",wms:"Betul. Solder wick = tembaga jalinan dengan flux diserap ke dalamnya."},
+ {t:"ox",a:"O",q:"Diffusion is a phenomenon in which solder that has wetted the metal surface penetrates into the metal.",qms:"Resapan (diffusion) ialah fenomena pateri yang telah membasahi permukaan logam menembusi ke dalam logam.",why:"Correct — that's the definition of diffusion.",wms:"Betul — itulah takrif resapan."},
+ {t:"ox",a:"O",q:"The optimal solder amount is symmetrical on both sides of the lead-wire center, with the wire outline still visible.",qms:"Jumlah pateri optimum adalah simetri pada kedua-dua sisi pusat lead wire, dengan garis luar wayar masih kelihatan.",why:"Correct. Symmetric, wire outline faintly perceptible, concave trailing off.",wms:"Betul. Simetri, garis luar wayar samar kelihatan, cerun cekung menirus."},
+ {t:"ox",a:"O",q:"Polyimide and polyester are commonly used materials for flexible substrates.",qms:"Poliimida dan poliester ialah bahan yang biasa digunakan untuk substrat fleksibel.",why:"Correct. Flexible boards use polyester and polyimide.",wms:"Betul. Board fleksibel menggunakan poliester dan poliimida."},
+ {t:"ox",a:"X",q:"Even if old solder remains on the tip, good soldering is achieved by applying enough new solder.",qms:"Walaupun pateri lama kekal pada hujung iron, pematerian baik boleh dicapai dengan menyapu pateri baru yang cukup.",why:"Old solder on the tip prevents good soldering — wipe it off first.",wms:"Pateri lama pada hujung menghalang pematerian baik — lap dahulu."},
+ {t:"ox",a:"O",q:"Safety design means ensuring safety to prevent danger to humans even if a machine fails or a human errs.",qms:"Reka bentuk keselamatan bermaksud memastikan keselamatan untuk mengelak bahaya kepada manusia walaupun mesin gagal atau manusia tersilap.",why:"Correct — the definition of intrinsic safety / safety design.",wms:"Betul — takrif keselamatan intrinsik / reka bentuk keselamatan."},
+ {t:"ox",a:"X",q:"If time or cost is a priority, unsafe behavior is acceptable.",qms:"Jika masa atau kos menjadi keutamaan, perlakuan tidak selamat boleh diterima.",why:"Never. Unsafe acts are compromises that deviate from the safe method.",wms:"Tidak sekali-kali. Perlakuan tidak selamat ialah kompromi yang menyimpang daripada kaedah selamat."},
+ {t:"ox",a:"O",q:"The purpose of work standards is to guarantee safety, quality, and efficiency, and they are a means to achieve these.",qms:"Tujuan standard kerja ialah menjamin keselamatan, kualiti dan kecekapan, dan ia adalah cara untuk mencapainya.",why:"Correct — that's the stated purpose of work standards.",wms:"Betul — itulah tujuan standard kerja yang dinyatakan."},
+ {t:"ox",a:"X",q:"In 5S3T, cleanliness (Sweep) should be maintained only whenever one notices it needs attention.",qms:"Dalam 5S3T, kebersihan (Sweep) hanya perlu dikekalkan bila seseorang perasan ia perlukan perhatian.",why:"Sweep is maintained <b>continuously and independently</b>, not only when noticed.",wms:"Sweep dikekalkan <b>secara berterusan dan berdikari</b>, bukan hanya bila perasan."},
+ {t:"ox",a:"O",flag:true,q:"Items that are always displayed are called fixed items.",qms:"Item yang sentiasa dipaparkan dipanggil fixed item.",why:"The 'always displayed/marked' idea maps to the fixed concept. Marked O.",wms:"Idea 'sentiasa dipapar/ditanda' sepadan dengan konsep tetap. Ditanda O.",flagnote:"Wording varies between fixed-position/item/quantity. Verify if your key is strict.",flagms:"Perkataan berbeza antara fixed-position/item/quantity. Sahkan jika kunci anda ketat."},
+ {t:"ox",a:"O",q:"Sustain means always following sort, set in order, shine, and standardize, and making it a habit.",qms:"Sustain bermaksud sentiasa mengikuti sort, set in order, shine dan standardize, serta menjadikannya tabiat.",why:"Correct. Sustain / self-discipline = making the other 4S a habit.",wms:"Betul. Sustain / disiplin diri = menjadikan 4S yang lain sebagai tabiat."},
+ {t:"ox",a:"O",q:"Loss costs from quality problems, such as scrapping non-conforming products, are called QF costs.",qms:"Kos kerugian daripada masalah kualiti, seperti membuang produk tidak menepati, dipanggil kos QF.",why:"Correct. QF = quality failure cost (e.g., scrapping defectives).",wms:"Betul. QF = kos kegagalan kualiti (cth. membuang produk cacat)."},
+ {t:"ox",a:"X",q:"The quality control cycle stands for S (standardization), D (Do), C (Check), and A (Action).",qms:"Kitaran kawalan kualiti bermaksud S (standardization), D (Do), C (Check), dan A (Action).",why:"It's <b>PDCA</b> — Plan, Do, Check, Act. Not 'S (standardization).'",wms:"Ia <b>PDCA</b> — Plan, Do, Check, Act. Bukan 'S (standardization).'"},
+ {t:"ox",a:"X",q:"A story that explores ideas and implements measures to break through the current situation is a problem-solving QC story.",qms:"Kisah yang meneroka idea dan melaksanakan langkah untuk menembusi situasi semasa ialah QC story jenis penyelesaian masalah.",why:"Breaking new ground is a <b>task-achieving</b> QC story. Problem-solving fixes causes of existing problems.",wms:"Menembusi bidang baru ialah QC story jenis <b>pencapaian tugas</b>. Penyelesaian masalah membaiki punca masalah sedia ada."},
+ {t:"ox",a:"O",q:"The Seven QC Tools are easy to understand, create, and use when handling data in daily work.",qms:"Tujuh Alat QC mudah difahami, dibina, dan digunakan semasa mengendalikan data dalam kerja harian.",why:"Correct — that's exactly how the 7 QC tools are described.",wms:"Betul — itulah cara 7 alat QC diterangkan."}
+];
+
+const L2=[
+ {t:"ox",a:"X",q:"Even if old solder remains on the tip, good soldering is achieved by applying enough new solder.",qms:"Walaupun pateri lama kekal pada hujung iron, pematerian baik boleh dicapai dengan menyapu pateri baru yang cukup.",why:"Old solder on the tip prevents good soldering — wipe it off first.",wms:"Pateri lama pada hujung menghalang pematerian baik — lap dahulu."},
+ {t:"ox",a:"O",q:"Solder flows from a lower temperature area to a higher temperature area.",qms:"Pateri mengalir dari kawasan suhu rendah ke kawasan suhu tinggi.",why:"Correct — solder flows toward the hotter region.",wms:"Betul — pateri mengalir ke kawasan lebih panas."},
+ {t:"ox",a:"O",q:'A resistor coded [red, red, orange, gold] means "2.2kΩ ±5%."',qms:'Perintang berkod [merah, merah, jingga, emas] bermaksud "2.2kΩ ±5%."',why:"Correct. Red=2, red=2, orange=×1000 → 22kΩ = 2.2kΩ... 22×1000=22,000Ω=2.2kΩ; gold=±5%.",wms:"Betul. Merah=2, merah=2, jingga=×1000 → 22×1000=22,000Ω=2.2kΩ; emas=±5%."},
+ {t:"ox",a:"O",q:"With an iron-tip thermometer, an error occurs if the solder on the tip and sensor are not fully melted before measurement.",qms:"Dengan termometer hujung iron, ralat berlaku jika pateri pada hujung dan sensor tidak cair sepenuhnya sebelum pengukuran.",why:"Correct. The sensor's solder must be molten for a valid reading.",wms:"Betul. Pateri sensor mesti cair untuk bacaan sah."},
+ {t:"ox",a:"X",q:"To chemically remove dirt from a metal surface, use sandpaper or a metal file.",qms:"Untuk membuang kotoran secara kimia daripada permukaan logam, gunakan kertas pasir atau kikir logam.",why:"That's a <b>mechanical</b> method. Chemical removal uses flux or solvents.",wms:"Itu kaedah <b>mekanikal</b>. Pembuangan kimia menggunakan flux atau pelarut."},
+ {t:"ox",a:"O",q:"The most efficient part-installation order is top to bottom and left to right, reducing mistakes.",qms:"Susunan pemasangan komponen paling cekap ialah atas ke bawah dan kiri ke kanan, mengurangkan kesilapan.",why:"Correct. Consistent order improves efficiency and cuts errors.",wms:"Betul. Susunan konsisten meningkatkan kecekapan dan mengurangkan ralat."},
+ {t:"ox",a:"X",q:"For metal/plastic waste from soldering, if the waste is small there's no need to separate it.",qms:"Bagi sisa logam/plastik daripada pematerian, jika sisa kecil tidak perlu diasingkan.",why:"Lead-containing waste must be separated as industrial waste regardless of amount.",wms:"Sisa mengandungi plumbum mesti diasingkan sebagai sisa industri tanpa mengira jumlah."},
+ {t:"ox",a:"O",q:"Quality control is a system of techniques for economically producing goods/services meeting buyers' quality requirements.",qms:"Kawalan kualiti ialah sistem teknik untuk menghasilkan barangan/perkhidmatan secara ekonomik yang memenuhi keperluan kualiti pembeli.",why:"Correct — matches the QC definition.",wms:"Betul — sepadan dengan takrif QC."},
+ {t:"ox",a:"X",q:"Appearance inspection can be broadly divided into visual inspection and destructive inspection.",qms:"Pemeriksaan rupa boleh dibahagikan kepada pemeriksaan visual dan pemeriksaan memusnah.",why:"It divides into visual and <b>tactile</b> inspection. Non-destructive.",wms:"Ia terbahagi kepada visual dan <b>sentuhan</b>. Tidak memusnahkan."},
+ {t:"ox",a:"X",q:"Lead-free solder is prone to not melting from insufficient heating, but 70% of the alloy melted is sufficient.",qms:"Pateri lead-free cenderung tidak cair akibat pemanasan tidak cukup, tetapi 70% aloi cair sudah memadai.",why:"'70% melted is enough' is false — incomplete melting is a defect.",wms:"'70% cair sudah cukup' adalah salah — leburan tidak lengkap ialah kecacatan."},
+ {t:"ox",a:"O",q:'The "103" written on a ceramic capacitor means "0.01 µF."',qms:'"103" pada kapasitor seramik bermaksud "0.01 µF."',why:"Correct. 10 × 10³ pF = 10,000 pF = 0.01 µF.",wms:"Betul. 10 × 10³ pF = 10,000 pF = 0.01 µF."},
+ {t:"ox",a:"X",q:"Reflow mounting equipment needs no periodic maintenance, since start-up inspections prevent breakdowns.",qms:"Peralatan pemasangan reflow tidak perlu penyelenggaraan berkala kerana pemeriksaan permulaan mencegah kerosakan.",why:"Periodic maintenance is still required.",wms:"Penyelenggaraan berkala masih diperlukan."},
+ {t:"ox",a:"O",q:"A phase diagram shows the relationship between metal composition ratio and temperature, and how the state changes.",qms:"Rajah fasa menunjukkan hubungan antara nisbah komposisi logam dan suhu, serta bagaimana keadaan berubah.",why:"Correct — that's what a phase diagram shows.",wms:"Betul — itulah yang ditunjukkan rajah fasa."},
+ {t:"ox",a:"X",q:"Since surfaces must be kept clean, it is generally preferable not to apply plating treatment.",qms:"Oleh sebab permukaan mesti bersih, biasanya lebih baik tidak menyalut (plating).",why:"Plating (Au/Ag/Sn/solder) is applied to <b>protect</b> solderability.",wms:"Plating (Au/Ag/Sn/solder) disapu untuk <b>melindungi</b> keupayaan pematerian."},
+ {t:"ox",a:"X",q:"Lead-free solder has good wettability and provides excellent solder wicking into through-holes.",qms:"Pateri lead-free mempunyai wettability baik dan wicking sangat baik ke dalam through-hole.",why:"Lead-free has <b>inferior</b> wettability.",wms:"Lead-free mempunyai wettability <b>lebih lemah</b>."},
+ {t:"ox",a:"O",q:"Polyimide and polyester are commonly used materials for flexible substrates.",qms:"Poliimida dan poliester ialah bahan biasa untuk substrat fleksibel.",why:"Correct.",wms:"Betul."},
+ {t:"ox",a:"O",q:"The basic joining mechanism of Sn-Ag-Cu is the formation of an alloy layer (intermetallic) between Sn and Cu.",qms:"Mekanisme penyambungan asas Sn-Ag-Cu ialah pembentukan lapisan aloi (intermetallic) antara Sn dan Cu.",why:"Correct — an Sn–Cu intermetallic layer forms the joint.",wms:"Betul — lapisan intermetallic Sn–Cu membentuk sambungan."},
+ {t:"ox",a:"O",q:"Flux works to prevent oxidation of metal surfaces.",qms:"Flux berfungsi mencegah pengoksidaan permukaan logam.",why:"Correct.",wms:"Betul."},
+ {t:"ox",a:"X",q:"Solder balls during reflow can be largely prevented by using a high temperature reflow furnace.",qms:"Solder ball semasa reflow boleh dielakkan dengan relau reflow bersuhu tinggi.",why:"A hotter furnace worsens spraying. Control the preheat profile.",wms:"Relau lebih panas memburukkan spraying. Kawal profil preheat."},
+ {t:"ox",a:"X",q:"The common cause of loose and tempura solder is high heating temperature.",qms:"Punca biasa pateri loose dan tempura ialah suhu pemanasan tinggi.",why:"They come from <b>insufficient/too-low</b> heating and poor wetting.",wms:"Ia berpunca daripada pemanasan <b>tidak cukup/terlalu rendah</b> dan wetting lemah."},
+ {t:"ox",a:"O",q:"The base metal in lead-free solder is tin (Sn) for safety, availability, cost, etc.",qms:"Logam asas dalam pateri lead-free ialah timah (Sn) atas sebab keselamatan, bekalan, kos, dsb.",why:"Correct.",wms:"Betul."},
+ {t:"ox",a:"X",flag:true,q:"Fillet peeling in QFPs is likely when lead is mixed into Bi-containing solder, so care is needed.",qms:"Fillet peeling pada QFP berkemungkinan berlaku bila plumbum bercampur dengan pateri mengandungi Bi, jadi perlu berhati-hati.",why:"Pb contaminating Bi-solder forms a low-melting phase — but the statement as written is garbled, so marked X.",wms:"Pb mencemari pateri Bi membentuk fasa lebur rendah — tetapi pernyataan seperti ditulis kabur, jadi ditanda X.",flagnote:"This mechanism isn't spelled out in the uploaded texts. Verify against your key.",flagms:"Mekanisme ini tidak dinyatakan jelas dalam teks. Sahkan dengan kunci anda."},
+ {t:"ox",a:"O",q:"In lead-free reflow, set the preheating temperature so the flux does not lose its activation power.",qms:"Dalam reflow lead-free, tetapkan suhu preheat supaya flux tidak hilang kuasa pengaktifan.",why:"Correct. Preheat must not over-drive the flux past its active range.",wms:"Betul. Preheat tidak boleh melampaui julat aktif flux."},
+ {t:"ox",a:"O",q:"Working with solder or flux can produce harmful substances through thermal decomposition.",qms:"Bekerja dengan pateri atau flux boleh menghasilkan bahan berbahaya melalui penguraian haba.",why:"Correct.",wms:"Betul."},
+ {t:"ox",a:"O",q:"Solder wick consists of braided copper wire infused with flux.",qms:"Solder wick terdiri daripada wayar tembaga jalinan yang diserap flux.",why:"Correct.",wms:"Betul."},
+
+ {t:"mc",a:1,q:'Which statement about "causes and countermeasures for lift-off" (a lead-free problem) is correct?',qms:'Pernyataan manakah tentang "punca dan langkah pencegahan lift-off" (masalah lead-free) yang betul?',
+  o:[{en:"More likely as lead-wire diameter gets thinner, so make the lead wire thicker.",ms:"Lebih berkemungkinan bila diameter lead wire mengecil, jadi tebalkan lead wire."},
+     {en:"Occurs most on single-sided boards, so use a double-sided through-hole board.",ms:"Paling kerap pada board satu muka, jadi guna board through-hole dua muka."},
+     {en:"More likely as land diameter gets smaller, so improve the land shape.",ms:"Lebih berkemungkinan bila diameter land mengecil, jadi perbaiki bentuk land."},
+     {en:"More likely as substrate thickness increases, so make the substrate thinner.",ms:"Lebih berkemungkinan bila ketebalan substrat bertambah, jadi nipiskan substrat."}],
+  why:"Lift-off occurs most on single-sided boards; countermeasure is a double-sided through-hole board.",wms:"Lift-off paling kerap pada board satu muka; langkahnya ialah board through-hole dua muka."},
+ {t:"mc",a:1,q:'Which statement about "diffusion" describes "selective diffusion"?',qms:'Pernyataan manakah tentang "resapan" menerangkan "selective diffusion"?',
+  o:[{en:"Filler metal diffuses into the grain boundaries of the crystals.",ms:"Logam pengisi meresap ke dalam sempadan butir hablur."},
+     {en:"During joining, only certain metal elements of the filler diffuse while others do not.",ms:"Semasa penyambungan, hanya unsur logam tertentu meresap manakala yang lain tidak."},
+     {en:"Filler metal diffuses along the crystal surface of the metal.",ms:"Logam pengisi meresap di sepanjang permukaan hablur logam."},
+     {en:"Filler metal diffuses into the crystal grains themselves.",ms:"Logam pengisi meresap ke dalam butir hablur itu sendiri."}],
+  why:"Selective diffusion: some constituent metals diffuse, others don't. (A=intergranular, C=surface, D=structural.)",wms:"Selective diffusion: sesetengah logam meresap, yang lain tidak. (A=intergranular, C=permukaan, D=struktur.)"},
+ {t:"mc",a:0,q:'Which statement about "electronic components" is correct?',qms:'Pernyataan manakah tentang "komponen elektronik" yang betul?',
+  o:[{en:"Diode: current flows one way. Used for rectification, constant voltage, switching, etc.",ms:"Diod: arus satu arah. Untuk penerusan, voltan tetap, pensuisan, dsb."},
+     {en:"Electrolytic capacitors: compact, high capacity, and extremely high voltage resistance.",ms:"Kapasitor elektrolitik: padat, kapasiti tinggi, dan rintangan voltan sangat tinggi."},
+     {en:"Resistor: impedes current; wirewound resistors have polarity from winding direction.",ms:"Perintang: menghalang arus; perintang wirewound ada kutub ikut arah lilitan."},
+     {en:"IC: low reliability, but widely used for high integration.",ms:"IC: kebolehpercayaan rendah, tetapi digunakan luas untuk integrasi tinggi."}],
+  why:"A is correct. B wrong — electrolytics have LOW voltage resistance. C wrong. D wrong — ICs have HIGH reliability.",wms:"A betul. B salah — elektrolitik ada rintangan voltan RENDAH. C salah. D salah — IC kebolehpercayaan TINGGI."},
+ {t:"mc",a:3,q:'Which statement about the "role of preheating" in machine soldering is correct?',qms:'Pernyataan manakah tentang "peranan preheating" dalam pematerian mesin yang betul?',
+  o:[{en:"Prevents worker burns from boards with poor heat dissipation.",ms:"Mencegah kecederaan pekerja daripada board yang lambat lesap haba."},
+     {en:"Fixes each element early to prevent misalignment during transport.",ms:"Menetapkan setiap komponen awal untuk elak salah jajar semasa pengangkutan."},
+     {en:"Prevents thermal damage during cleaning and stabilizes electrical characteristics at inspection.",ms:"Mencegah kerosakan haba semasa pembersihan dan menstabilkan ciri elektrik semasa pemeriksaan."},
+     {en:"Activates the flux, promotes removal of oxide film, and improves wettability.",ms:"Mengaktifkan flux, membantu buang lapisan oksida, dan memperbaiki wettability."}],
+  why:"D is preheating's role. A, B and C are all roles of <b>cooling</b>.",wms:"D ialah peranan preheating. A, B, C ialah peranan <b>penyejukan</b>."},
+ {t:"mc",a:0,q:'Pretreatment for soldering — fill [a][b][c][d]: [a](sandpaper,file) / [b](flux,solvent,pickling) / [c](antioxidant coating) / [d](Au,Ag,Sn,solder plating).',qms:'Pra-rawatan pematerian — isikan [a][b][c][d]: [a](kertas pasir,kikir) / [b](flux,pelarut,pickling) / [c](salutan antioksida) / [d](plating Au,Ag,Sn,solder).',
+  o:[{en:"Physical cleaning – Chemical cleaning – Organic film treatment – Metal film treatment",ms:"Pembersihan fizikal – Pembersihan kimia – Rawatan filem organik – Rawatan filem logam"},
+     {en:"Chemical cleaning – Organic film treatment – Physical cleaning – Metal film treatment",ms:"Pembersihan kimia – Rawatan filem organik – Pembersihan fizikal – Rawatan filem logam"},
+     {en:"Physical cleaning – Metal film treatment – Organic film treatment – Chemical cleaning",ms:"Pembersihan fizikal – Rawatan filem logam – Rawatan filem organik – Pembersihan kimia"},
+     {en:"Metal film treatment – Chemical cleaning – Physical cleaning – Organic film treatment",ms:"Rawatan filem logam – Pembersihan kimia – Pembersihan fizikal – Rawatan filem organik"}],
+  why:"a=Physical (sandpaper/file), b=Chemical (flux/solvent), c=Organic film (antioxidant), d=Metal film (plating).",wms:"a=Fizikal (kertas pasir/kikir), b=Kimia (flux/pelarut), c=Filem organik (antioksida), d=Filem logam (plating)."},
+ {t:"mc",a:2,q:'Which statement about "visual inspection" in soldering inspection is correct?',qms:'Pernyataan manakah tentang "pemeriksaan visual" yang betul?',
+  o:[{en:"Visual inspection covers the solder joints only.",ms:"Pemeriksaan visual meliputi sambungan pateri sahaja."},
+     {en:"Since faults must be repaired, appearance inspection excludes items with no direct electrical defect.",ms:"Oleh kerana kerosakan mesti dibaiki, pemeriksaan rupa mengecualikan item tanpa kecacatan elektrik langsung."},
+     {en:"Defects are hard to quantify and depend on inspector judgment, so standardizing the defect limit and training are needed.",ms:"Kecacatan sukar dikira dan bergantung pada penilaian pemeriksa, jadi standard had kecacatan dan latihan diperlukan."},
+     {en:"Burnt/damaged lead insulation, dirt, and scratches are excluded from appearance inspection.",ms:"Penebat lead terbakar/rosak, kotoran, dan calar dikecualikan daripada pemeriksaan rupa."}],
+  why:"C is correct. A wrong — surroundings included. B/D wrong — potential (non-electrical) defects ARE inspected.",wms:"C betul. A salah — persekitaran termasuk. B/D salah — kecacatan berpotensi (bukan elektrik) TETAP diperiksa."},
+ {t:"mc",a:2,q:'Which statement about the "basics of soldering" is INCORRECT?',qms:'Pernyataan manakah tentang "asas pematerian" yang SALAH?',
+  o:[{en:"First: the heating method — quickly detect the heating condition and deal with it.",ms:"Pertama: kaedah pemanasan — kesan keadaan haba dengan cepat dan uruskannya."},
+     {en:"Second: quickly decide when, where, and how much solder to apply, then act.",ms:"Kedua: tentukan dengan cepat bila, di mana, berapa banyak pateri, kemudian bertindak."},
+     {en:"Third: visualize the finished shape; once it looks OK, slowly remove the solder from the joint.",ms:"Ketiga: bayangkan bentuk siap; bila nampak OK, keluarkan pateri dari sambungan secara perlahan."},
+     {en:"Fourth: check wettability, gloss, amount, pinholes, then remove the iron and let it cool.",ms:"Keempat: semak wettability, kilau, jumlah, pinhole, kemudian tarik iron dan biar sejuk."}],
+  why:"C is incorrect — once there's enough solder, remove it <b>immediately/promptly</b>, not slowly.",wms:"C salah — bila pateri sudah cukup, keluarkan dengan <b>segera/pantas</b>, bukan perlahan."},
+ {t:"mc",a:0,q:'Which "protective condition for electronic components" (a soldering-iron requirement) is INCORRECT?',qms:'"Syarat perlindungan komponen elektronik" (keperluan iron) manakah yang SALAH?',
+  o:[{en:"The leakage current is high and will not damage the components.",ms:"Arus bocor tinggi dan tidak akan merosakkan komponen."},
+     {en:"Temperature control is possible.",ms:"Kawalan suhu boleh dilakukan."},
+     {en:"The components must not be subject to magnetic influence.",ms:"Komponen tidak boleh terdedah kepada pengaruh magnet."},
+     {en:"Low static electricity.",ms:"Elektrik statik rendah."}],
+  why:"A is incorrect — leakage current must be <b>low</b> so parts aren't damaged.",wms:"A salah — arus bocor mesti <b>rendah</b> supaya komponen tidak rosak."},
+ {t:"mc",a:1,q:'Which statement about "hand soldering with lead-free solder" is correct?',qms:'Pernyataan manakah tentang "pematerian tangan dengan pateri lead-free" yang betul?',
+  o:[{en:"The basic method differs greatly from Sn-Pb, so the work order must be redesigned.",ms:"Kaedah asas jauh berbeza daripada Sn-Pb, jadi susunan kerja mesti direka semula."},
+     {en:"Lead-free has inferior wettability, so base exposure increases from insufficient wetting/spreading.",ms:"Lead-free wettability lebih lemah, jadi pendedahan asas bertambah akibat wetting/rebakan tidak cukup."},
+     {en:"Set the iron tip lower than the proper temperature to prevent overheating.",ms:"Tetapkan hujung iron lebih rendah daripada suhu sepatutnya untuk elak overheating."},
+     {en:"Since iron temperature is set high, no preheating of lands or leads is done.",ms:"Oleh kerana suhu iron tinggi, tiada preheat pada land atau lead."}],
+  why:"B is correct. A wrong — method basically the same. C wrong — temp higher. D wrong — preheating still needed.",wms:"B betul. A salah — kaedah pada dasarnya sama. C salah — suhu lebih tinggi. D salah — preheat masih perlu."},
+ {t:"mc",a:2,q:"Choose the correct preventive measure for the migration phenomenon.",qms:"Pilih langkah pencegahan yang betul untuk fenomena migration.",
+  o:[{en:"Sn alloy plating.",ms:"Plating aloi Sn."},
+     {en:"Heat treatment such as baking and melting.",ms:"Rawatan haba seperti pembakaran dan peleburan."},
+     {en:"Remove halogen ions and ionic residues and clean.",ms:"Buang ion halogen dan sisa ionik dan bersihkan."},
+     {en:"Base material and undercoat plating made of Ni or Fe.",ms:"Bahan asas dan plating salutan bawah daripada Ni atau Fe."}],
+  why:"C prevents migration. A, B, D are all <b>whisker</b> countermeasures.",wms:"C mencegah migration. A, B, D ialah langkah untuk <b>whisker</b>."},
+ {t:"mc",a:1,q:'Which statement about "corrosion," a special soldering-defect phenomenon, is correct?',qms:'Pernyataan manakah tentang "corrosion" (kakisan), fenomena kecacatan khas, yang betul?',
+  o:[{en:"A static load in one direction distorts the metal over time until it breaks.",ms:"Beban statik satu arah meresotkan logam mengikut masa sehingga patah."},
+     {en:"Oxygen/water in air with Cl ions in flux residue dissolves the metal, breaking the wire.",ms:"Oksigen/air di udara dengan ion Cl dalam sisa flux melarutkan logam, memutuskan wayar."},
+     {en:"Voltage between electrodes on a resin substrate with moisture and specific ions present.",ms:"Voltan antara elektrod pada substrat resin dengan kelembapan dan ion tertentu."},
+     {en:"Around −40°C the material loses strength or breaks into fine crystalline powder.",ms:"Sekitar −40°C bahan hilang kekuatan atau pecah menjadi serbuk hablur halus."}],
+  why:"B describes corrosion. A=creep, C=migration, D=grey tin / tin pest.",wms:"B ialah corrosion. A=creep, C=migration, D=grey tin / tin pest."},
+ {t:"mc",a:0,q:'Soldering &amp; surface treatment — fill [a][b][c][d]: [a] oxidation-stable, brittle at ≥4% / [b] good but sulfurizes, migration risk / [c] good but unstable, whisker risk / [d] excellent + long-term stable.',qms:'Pematerian &amp; rawatan permukaan — isikan [a][b][c][d]: [a] stabil oksida, rapuh pada ≥4% / [b] baik tetapi bersulfur, risiko migration / [c] baik tetapi tidak stabil, risiko whisker / [d] cemerlang + stabil jangka panjang.',
+  o:[{en:"Gold(Au) – Silver(Ag) – Tin(Sn) – Solder",ms:"Emas(Au) – Perak(Ag) – Timah(Sn) – Solder"},
+     {en:"Gold(Au) – Tin(Sn) – Solder – Silver(Ag)",ms:"Emas(Au) – Timah(Sn) – Solder – Perak(Ag)"},
+     {en:"Gold(Au) – Tin(Sn) – Silver(Ag) – Solder",ms:"Emas(Au) – Timah(Sn) – Perak(Ag) – Solder"},
+     {en:"Solder – Silver(Ag) – Gold(Au) – Tin(Sn)",ms:"Solder – Perak(Ag) – Emas(Au) – Timah(Sn)"}],
+  why:"a=Gold (brittle ≥4%), b=Silver (sulfurizes, migration), c=Tin (unstable, whiskers), d=Solder (stable).",wms:"a=Emas (rapuh ≥4%), b=Perak (bersulfur, migration), c=Timah (tidak stabil, whisker), d=Solder (stabil)."},
+ {t:"mc",a:2,q:'Which statement about "examples of defective soldering" is INCORRECT?',qms:'Pernyataan manakah tentang "contoh pematerian cacat" yang SALAH?',
+  o:[{en:"Potato solder: lumpy and swollen; continued overheating gives a rough surface.",ms:"Potato solder: berketul dan bengkak; overheating berterusan memberi permukaan kasar."},
+     {en:"Blowhole: a crater-shaped hole that can lead to cracks/strength loss.",ms:"Blowhole: lubang berbentuk kawah yang boleh menyebabkan retak/kehilangan kekuatan."},
+     {en:"Measling: solder sucked up into the lead-wire coating, which can break the wire.",ms:"Measling: pateri disedut ke dalam salutan lead wire, yang boleh memutuskan wayar."},
+     {en:'"Loose": solder does not melt fully into terminals/leads, so they move or come off.',ms:'"Loose": pateri tidak cair sepenuhnya ke dalam terminal/lead, jadi ia bergerak atau tertanggal.'}],
+  why:"C is incorrect. That's <b>wicking</b>. Measling = base/insulating-layer separation with white spots (from overheating).",wms:"C salah. Itu <b>wicking</b>. Measling = pemisahan lapisan asas/penebat dengan bintik putih (akibat overheating)."},
+ {t:"mc",a:2,flag:true,q:"Which statement about Sn-Ag solder alloys is INCORRECT?",qms:"Pernyataan manakah tentang aloi pateri Sn-Ag yang SALAH?",
+  o:[{en:"Ag₃Sn segregates into coarse needle-like precipitates; mechanical properties degrade over time.",ms:"Ag₃Sn terpisah menjadi pemendakan kasar seperti jarum; sifat mekanikal merosot mengikut masa."},
+     {en:"Long known as a high-temperature environmental solder with a high melting point; lead-free with a long track record.",ms:"Lama dikenali sebagai pateri persekitaran suhu tinggi dengan takat lebur tinggi; lead-free dengan rekod panjang."},
+     {en:"The 221°C eutectic is too high for typical reflow, making it hard to manage due to thermal damage.",ms:"Eutektik 221°C terlalu tinggi untuk reflow biasa, menyukarkan pengurusan akibat kerosakan haba."},
+     {en:"Cu, Bi, In, Ge, etc. are often added to this binary to make multi-element alloys.",ms:"Cu, Bi, In, Ge, dsb. sering ditambah pada binari ini untuk membuat aloi berbilang unsur."}],
+  why:"C is incorrect — 221°C is workable for reflow, so the 'too high' reasoning is false.",wms:"C salah — 221°C boleh diguna untuk reflow, jadi alasan 'terlalu tinggi' tidak benar.",flagnote:"Sn-Ag binary specifics are thin in the uploaded texts. Check your key.",flagms:"Butiran binari Sn-Ag kurang dalam teks. Semak kunci anda."},
+ {t:"mc",a:1,q:"Basics of soldering — the bond between metal and brazing material is [ ]:",qms:"Asas pematerian — ikatan antara logam dan bahan pematerian ialah [ ]:",
+  o:[{en:"Good interatomic bonding",ms:"Ikatan antara-atom yang baik"},
+     {en:"Good metal-to-metal bonding",ms:"Ikatan logam-ke-logam yang baik"},
+     {en:"Strong physical bond",ms:"Ikatan fizikal yang kuat"},
+     {en:"Artistic micro-joining",ms:"Penyambungan mikro seni"}],
+  why:"'A satisfactory metal-to-metal bond' — the textbook's exact phrasing.",wms:"'Ikatan logam-ke-logam yang memuaskan' — ungkapan tepat buku teks."},
+
+ {t:"ox",a:"O",q:"Human, physical, environmental, and management factors are the basic elements for ensuring safety.",qms:"Faktor manusia, fizikal, persekitaran dan pengurusan ialah elemen asas untuk memastikan keselamatan.",why:"Correct — that's 4M: Man, Machine, Media, Management.",wms:"Betul — itu 4M: Man, Machine, Media, Management."},
+ {t:"ox",a:"X",q:"Foolproof means designing a product/system so safety is maintained even if a breakdown or error occurs.",qms:"Foolproof bermaksud mereka bentuk produk/sistem supaya keselamatan dikekalkan walaupun berlaku kerosakan atau ralat.",why:"That describes <b>failsafe</b>. Foolproof prevents the human error from happening.",wms:"Itu menerangkan <b>failsafe</b>. Foolproof menghalang ralat manusia daripada berlaku."},
+ {t:"ox",a:"O",q:"Fixed-location management means the location of items is displayed and managed.",qms:"Pengurusan lokasi tetap bermaksud lokasi item dipaparkan dan diurus.",why:"Correct — fixed position (1-Tei): locations are marked and managed.",wms:"Betul — kedudukan tetap (1-Tei): lokasi ditanda dan diurus."},
+ {t:"ox",a:"O",q:"Set in Order means deciding the correct location/placement so items are immediately available, clearly indicated, and maintained.",qms:"Set in Order bermaksud menentukan lokasi/penempatan betul supaya item tersedia serta-merta, ditunjuk jelas, dan dikekalkan.",why:"Correct — that's Set in Order (Seiton).",wms:"Betul — itulah Set in Order (Seiton)."},
+ {t:"ox",a:"X",q:"SS costs refer to losses from product quality problems, such as scrapping non-conforming products.",qms:"Kos SS merujuk kepada kerugian daripada masalah kualiti produk, seperti membuang produk tidak menepati.",why:"That's <b>QF</b> cost. SS = service support cost (free customer service/repairs).",wms:"Itu kos <b>QF</b>. SS = kos sokongan perkhidmatan (servis/baiki percuma untuk pelanggan)."},
+ {t:"ox",a:"O",q:"Stratification divides data into small groups by aspect/perspective to highlight characteristics and find solution clues.",qms:"Stratifikasi membahagi data kepada kumpulan kecil mengikut aspek untuk menonjolkan ciri dan mencari petunjuk penyelesaian.",why:"Correct — that's stratification.",wms:"Betul — itulah stratifikasi."},
+
+ {t:"mc",a:2,q:"A concept related to preventing danger from reaching humans, whether from machine failure or human error, is:",qms:"Konsep yang berkaitan dengan mencegah bahaya sampai kepada manusia, sama ada daripada kegagalan mesin atau ralat manusia, ialah:",
+  o:[{en:"Machine management",ms:"Pengurusan mesin"},{en:"Ensuring safety",ms:"Memastikan keselamatan"},
+     {en:"Safety management",ms:"Pengurusan keselamatan"},{en:"Preventive maintenance",ms:"Penyelenggaraan pencegahan"}],
+  why:"Safety management — preventing harm to people despite machine failure or human error.",wms:"Pengurusan keselamatan — mencegah kemudaratan kepada manusia walaupun mesin gagal atau manusia tersilap."},
+ {t:"mc",a:3,flag:true,q:"A state in which one is always conscious of the three fixed things (fixed location, fixed item, fixed quantity) is called:",qms:"Keadaan seseorang sentiasa sedar akan tiga perkara tetap (lokasi tetap, item tetap, kuantiti tetap) dipanggil:",
+  o:[{en:"Sort",ms:"Sort (Isih)"},{en:"Standardize",ms:"Standardize (Seragam)"},
+     {en:"Shine",ms:"Shine (Bersih)"},{en:"Set in Order",ms:"Set in Order (Susun)"}],
+  why:"3-Tei (fixed position/item/quantity) is realized through Set in Order (Seiton). Marked D.",wms:"3-Tei (kedudukan/item/kuantiti tetap) dicapai melalui Set in Order (Seiton). Ditanda D.",flagnote:"Some curricula map 3-Tei to Sort. If your key says A, that's the alternative reading.",flagms:"Sesetengah kurikulum mengaitkan 3-Tei dengan Sort. Jika kunci anda A, itu bacaan alternatif."},
+ {t:"mc",a:3,q:"Which of the following is NOT one of the seven QC tools?",qms:"Antara berikut, yang manakah BUKAN salah satu daripada tujuh alat QC?",
+  o:[{en:"Graph(control chart) / Scatter plot / Fishbone diagram / Stratification",ms:"Graf(carta kawalan) / Plot serakan / Rajah tulang ikan / Stratifikasi"},
+     {en:"Stratification / Pareto chart / Check sheet / Histogram",ms:"Stratifikasi / Carta Pareto / Helaian semak / Histogram"},
+     {en:"Check sheet / Fishbone diagram / Pareto plot / Scatter plot",ms:"Helaian semak / Rajah tulang ikan / Plot Pareto / Plot serakan"},
+     {en:"Arrow diagram / Scatter plot / Fishbone diagram / Stratification",ms:"Rajah anak panah / Plot serakan / Rajah tulang ikan / Stratifikasi"}],
+  why:"D contains the <b>Arrow diagram</b>, which is not one of the seven QC tools.",wms:"D mengandungi <b>Rajah anak panah</b>, yang bukan salah satu tujuh alat QC."},
+ {t:"mc",a:2,q:"What is the formula for the market (field) return rate?",qms:"Apakah formula bagi kadar pulangan pasaran (field return rate)?",
+  o:[{en:"(Number of process defects)/(Number shipped to market)",ms:"(Bilangan kecacatan proses)/(Bilangan dihantar ke pasaran)"},
+     {en:"(Number of market defects)/(Number of process inputs)",ms:"(Bilangan kecacatan pasaran)/(Bilangan input proses)"},
+     {en:"(Number of returns to market)/(Number of shipments to market)",ms:"(Bilangan pulangan dari pasaran)/(Bilangan penghantaran ke pasaran)"},
+     {en:"(Number of process inputs)/(Number of process defects)",ms:"(Bilangan input proses)/(Bilangan kecacatan proses)"}],
+  why:"Field failure rate = (number returned from market)/(number shipped to market).",wms:"Kadar kegagalan pasaran = (bilangan dipulang dari pasaran)/(bilangan dihantar ke pasaran)."}
+];
+
+function tag(arr,l){return arr.map((o,i)=>({...o,lvl:l,n:i+1}));}
+const BANK={l3:tag(L3,"Level 3"),l2:tag(L2,"Level 2")};
+BANK.both=[...BANK.l3,...BANK.l2];
+
+const $=id=>document.getElementById(id);
+let queue=[],idx=0,score=0,missed=[];
+function shuffle(a){const r=a.slice();for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}return r;}
+function buildQueue(set){
+  if(set==="quick"){
+    const f=BANK.both.filter(q=>q.flag),t=BANK.both.filter(q=>!q.flag);
+    return shuffle(shuffle(t).slice(0,12).concat(shuffle(f).slice(0,3)));
+  }
+  return shuffle(BANK[set]);
+}
+function start(){
+  const set=$("setPick").value;
+  queue=buildQueue(set);
+  if(set==="quick")queue=queue.slice(0,15);
+  idx=0;score=0;missed=[];
+  $("home").classList.add("hidden");$("done").classList.add("hidden");$("quiz").classList.remove("hidden");
+  render();
+}
+function render(){
+  const q=queue[idx];
+  $("count").textContent=`${idx+1} / ${queue.length}`;
+  $("fill").style.right=(100-(idx/queue.length*100))+"%";
+  $("qtag").textContent=`${q.lvl} · Q${q.n}`;
+  $("flagchip").classList.toggle("hidden",!q.flag);
+  $("qtext").innerHTML=q.q;$("qtextMs").innerHTML=q.qms;
+  $("fb").classList.remove("show");$("nav").classList.add("hidden");$("flagnote").classList.add("hidden");
+  const opts=$("opts");opts.innerHTML="";
+  if(q.t==="ox"){
+    [{k:"O",en:"O — Correct statement",ms:"Pernyataan betul"},{k:"X",en:"X — Incorrect statement",ms:"Pernyataan salah"}]
+      .forEach(p=>opts.appendChild(mkBtn(p.k,p.en,p.ms,()=>answer(q,p.k))));
+  }else{
+    const order=shuffle(q.o.map((text,i)=>({text,i})));
+    order.forEach((item,pos)=>{
+      const key=String.fromCharCode(65+pos);
+      opts.appendChild(mkBtn(key,item.text.en,item.text.ms,()=>answer(q,item.i,order),item.i===q.a));
+    });
+  }
+}
+function mkBtn(key,en,ms,fn){
+  const b=document.createElement("button");b.className="opt";b.type="button";
+  b.innerHTML=`<span class="key">${key}</span><span class="otxt">${en}<span class="ms">${ms}</span></span>`;
+  b.addEventListener("click",fn);return b;
+}
+function answer(q,choice,order){
+  const correct=(choice===q.a);
+  [...$("opts").children].forEach((b,pos)=>{
+    b.disabled=true;const keyTxt=b.querySelector(".key").textContent;
+    if(q.t==="ox"){
+      if(keyTxt===q.a)b.classList.add("correct");
+      if(keyTxt===choice&&choice!==q.a)b.classList.add("wrong");
+    }else{
+      const oi=order[pos].i;
+      if(oi===q.a)b.classList.add("correct");
+      if(oi===choice&&choice!==q.a)b.classList.add("wrong");
+    }
+  });
+  const v=$("verdict");
+  if(correct){score++;v.textContent="✓ Correct / Betul";v.className="verdict r";}
+  else{v.textContent="✕ Not quite / Kurang tepat";v.className="verdict w";missed.push(q);}
+  $("why").innerHTML=q.why;$("whyMs").innerHTML=q.wms;
+  if(q.flag&&q.flagnote){$("flagnote").innerHTML="⚑ "+q.flagnote+'<span class="ms">'+(q.flagms||"")+'</span>';$("flagnote").classList.remove("hidden");}
+  $("fb").classList.add("show");$("nav").classList.remove("hidden");
+  $("nextBtn").textContent=(idx===queue.length-1)?"See results / Keputusan →":"Next / Seterusnya →";
+  $("nextBtn").focus();
+}
+function next(){idx++;if(idx>=queue.length){finish();return;}render();window.scrollTo({top:0,behavior:"smooth"});}
+function finish(){
+  $("quiz").classList.add("hidden");$("done").classList.remove("hidden");
+  const total=queue.length;$("scoreNum").textContent=score;$("scoreDen").textContent=total;
+  const pct=score/total;let v,n;
+  if(pct>=0.9){v='Exam-ready on this material.<span class="ms">Sudah bersedia untuk bahan ini.</span>';n='Strong. Skim the missed items once more.<span class="ms">Bagus. Semak semula soalan yang tersilap sekali lagi.</span>';}
+  else if(pct>=0.75){v='Close. Tighten the gaps.<span class="ms">Hampir. Rapatkan jurang.</span>';n='A solid base with a few soft spots. Re-run and focus below.<span class="ms">Asas kukuh dengan sedikit kelemahan. Ulang dan fokus pada senarai di bawah.</span>';}
+  else if(pct>=0.5){v='More review needed before the exam.<span class="ms">Perlu ulang kaji sebelum peperiksaan.</span>';n='You know about half. Go back to the textbook, then re-run.<span class="ms">Anda tahu lebih kurang separuh. Kembali ke buku teks, kemudian ulang.</span>';}
+  else{v="Not ready yet — that's what practice is for.<span class=\"ms\">Belum bersedia — itulah tujuan latihan.</span>";n='Work through the missed items against the textbook, then come back.<span class="ms">Selesaikan soalan tersilap dengan buku teks, kemudian kembali.</span>';}
+  $("scoreVerdict").innerHTML=v;$("scoreNote").innerHTML=n;
+  const box=$("missedBox"),list=$("missList");
+  if(missed.length){
+    box.classList.remove("hidden");
+    $("missedTitle").textContent=`Review these ${missed.length} / Semak ${missed.length} ini`;
+    list.innerHTML="";
+    missed.forEach(q=>{
+      const row=document.createElement("div");row.className="missrow";
+      let a=q.t==="ox"?`Answer/Jawapan: <span class="${q.a==='O'?'o':'x'}">${q.a}</span>`:`Answer/Jawapan: <span class="o">${String.fromCharCode(65+q.a)}</span>`;
+      row.innerHTML=`<span class="m-q">${q.lvl} · Q${q.n} — ${q.q}</span><span class="m-a">${a}${q.flag?' · ⚑ verify / sahkan':''}</span>`;
+      list.appendChild(row);
+    });
+  }else box.classList.add("hidden");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+$("startBtn").addEventListener("click",start);
+$("nextBtn").addEventListener("click",next);
+$("againBtn").addEventListener("click",()=>{$("done").classList.add("hidden");$("home").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"});});
+</script>
+</body>
+</html>
